@@ -8,8 +8,15 @@ Puppet::Type.newtype(:sysctl) do
     desc "the value that the parameter should be set to"
   end
 
+  newproperty(:permanent) do
+    desc "whether the value is in [/etc/sysctl.conf]"
+    defaultto false
+    newvalues (/true|false/)
+  end
+
+  newparam(:path) do
+    desc "which sysctl.conf we are dealing with"
+    defaultto '/etc/sysctl.conf'
+  end
+
 end
-
-
-
-
