@@ -16,9 +16,10 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     sysctloutput = sysctl('-a')
     sysctloutput.each do |line|
       if line =~ /=/
-        next if line =~ /dev\.cdrom.info/
+        #next if line =~ /dev\.cdrom.\info/
         kernelsetting = line.split('=')
         instances << new(:name => kernelsetting[0].strip, :value => kernelsetting[1].strip)
+        puts instances.inspect
       end
     end
     instances

@@ -1,5 +1,5 @@
 This is a puppet module to edit Linux kernel params using sysctl 
-under the running kernel
+under the running kernel using a native type/provider
 
 EXAMPLE USAGE:
 
