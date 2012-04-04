@@ -1,0 +1,28 @@
+This is a puppet module to edit Linux kernel params using sysctl 
+under the running kernel
+
+EXAMPLE USAGE:
+
+# puppet resource sysctl vm.swappiness value=7
+sysctl { 'vm.swappiness':
+  ensure => 'present',
+  value  => '7',
+}
+
+# puppet resource sysctl
+sysctl { 'crypto.fips_enabled':
+  ensure => 'present',
+  value  => '0',
+}
+sysctl { 'dev.cdrom.autoclose':
+  ensure => 'present',
+  value  => '1',
+}
+sysctl { 'dev.cdrom.autoeject':
+  ensure => 'present',
+  value  => '0',
+}
+
+License:
+
+See LICENSE file
