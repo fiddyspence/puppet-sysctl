@@ -27,7 +27,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
   def permanent
     lines.find do |line|
       if line =~ /^#{resource[:name]}/
-      return "yes"
+        return "yes"
       end
     end
     "no"
@@ -37,6 +37,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     local_lines = lines
     File.open(resource[:path],'w') do |fh|
       fh.write(local_lines.reject{|l| l =~ /^#{resource[:name]}\s?\=\s?[\S+]/ }.join(''))
+      fh.flush
     end
   end
 
@@ -47,6 +48,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
       if a == "no"
         File.open(resource[:path], 'a') do |fh|
           fh.puts "#{resource[:name]} = #{b}"
+          fh.flush
         end
       else
         local_lines = lines
@@ -56,6 +58,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
             content = File.read(resource[:path])
             File.open(resource[:path],'w') do |fh|
               fh.write(content.gsub(/\n#{resource[:name]}\s?=\s?[\S+]/,"\n#{resource[:name]}\ =\ #{b}"))
+              fh.flush
             end
           end
         end
@@ -63,15 +66,34 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     else
       local_lines = lines
       File.open(resource[:path],'w') do |fh|
-        # this regex is not perfect yet
-        fh.write(local_lines.reject{|l| l =~ /^#{resource[:name]}\s?\=\s?[\S]+/ }.join(''))
+        fh.write(local_lines.reject{|l| l =~ /^#{resource[:name]}/ }.join(''))
+        fh.flush
       end
     end
   end
 
   def value
     thevalue = sysctl('-n','-e', resource[:name])
-    thevalue.strip
+    kernelvalue = thevalue.strip
+    confvalue = false
+    local_lines = lines
+    local_lines.find do |line|
+      if line =~ /^#{resource[:name]}/
+        thisparam=line.split('=')
+        confvalue = thisparam[1].strip
+      end
+    end
+    conftime = Time.now.to_f
+    if confvalue
+      if confvalue == kernelvalue
+        return kernelvalue
+      else
+        return "outofsync"
+      end
+    else
+      return kernelvalue
+    end
+
   end
 
   def value=(thesetting)
@@ -84,6 +106,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
         File.open(resource[:path],'w') do |fh|
           # this regex is not perfect yet
           fh.write(content.gsub(/\n#{resource[:name]}\s?=\s?[\S]+/,"\n#{resource[:name]}\ =\ #{b}"))
+          fh.flush
         end
       end
     end
@@ -91,6 +114,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
 
   private
   def lines
+    @lines = nil
     @lines ||= File.readlines(resource[:path])
   end
 
