@@ -10,7 +10,6 @@ Puppet::Type.newtype(:sysctl) do
 
   newproperty(:permanent) do
     desc "whether the value is in [/etc/sysctl.conf]"
-    defaultto "no"
     newvalues (/yes|no/)
   end
 
