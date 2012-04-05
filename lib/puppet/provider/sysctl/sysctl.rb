@@ -84,7 +84,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
       else
         return "outofsync(kernel:#{kernelvalue},sysctl:#{confvalue})"
       end
-    else
+    end
 
     kernelvalue
 
