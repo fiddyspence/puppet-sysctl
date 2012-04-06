@@ -38,9 +38,10 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
   end
 
   def permanent
+
     if lines != nil
       lines.find do |line|
-        if line =~ /^\s*?#{resource[:name]}/
+        if line =~ /^#{resource[:name]}/
           return "yes"
         end
       end
@@ -58,21 +59,22 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
         File.open(resource[:path], 'a') do |fh|
           fh.puts "#{resource[:name]} = #{b}"
         end
-      else
-        b = ( resource[:value] == nil ? value : resource[:value] )
-        lines.find do |line|
-          if line =~ /^\s*?#{resource[:name]}/ && line !~ /^\s*?#{resource[:name]}\s?=\s?#{b}/
-            content = File.read(resource[:path])
-            File.open(resource[:path],'w') do |fh|
-              fh.write(content.gsub(/\n#{resource[:name]}\s?=\s?[\S+]/,"\n#{resource[:name]}\ =\ #{b}"))
-            end
-          end
-        end
       end
+#      else
+#        b = ( resource[:value] == nil ? value : resource[:value] )
+#        lines.find do |line|
+#          if line =~ /^#{resource[:name]}/ && line !~ /^#{resource[:name]}\s?=\s?#{b}$/
+#            content = File.read(resource[:path])
+#            File.open(resource[:path],'w') do |fh|
+#              fh.write(content.gsub(/#{line}/,"#{resource[:name]}\ =\ #{b}\n"))
+#            end
+#          end
+#        end
+#      end
     else
       local_lines = lines
       File.open(resource[:path],'w') do |fh|
-        fh.write(local_lines.reject{|l| l =~ /^\s*?#{resource[:name]}/ }.join(''))
+        fh.write(local_lines.reject{|l| l =~ /^#{resource[:name]}/ }.join(''))
       end
     end
     @lines = nil
@@ -84,7 +86,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     confvalue = false
     if lines != nil
       lines.find do |line|
-        if line =~ /^\s*?#{resource[:name]}/
+        if line =~ /^#{resource[:name]}/
           thisparam=line.split('=')
           confvalue = thisparam[1].strip
         end
@@ -107,11 +109,11 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     sysctl('-w', "#{resource[:name]}=#{thesetting}")
     b = ( resource[:value] == nil ? value : resource[:value] )
     lines.find do |line|
-      if line =~ /^\s*?#{resource[:name]}/ && line !~ /^\s*?#{resource[:name]}\s*?=\s*?#{b}/
+      if line =~ /^#{resource[:name]}/ && line !~ /^#{resource[:name]}\s?=\s?#{b}$/
         content = File.read(resource[:path])
         File.open(resource[:path],'w') do |fh|
           # this regex is not perfect yet
-          fh.write(content.gsub(/\n#{resource[:name]}\s*?=.+\n/,"\n#{resource[:name]}\ =\ #{b}\n"))
+          fh.write(content.gsub(/#{line}/,"#{resource[:name]}\ =\ #{b}\n"))
         end
       end
     end
