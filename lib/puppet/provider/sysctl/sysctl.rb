@@ -33,7 +33,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
 
   def permanent
     lines.find do |line|
-      if line =~ /^#{resource[:name]}/
+      if line =~ /^\s*?#{resource[:name]}/
         return "yes"
       end
     end
@@ -51,7 +51,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
       else
         b = ( resource[:value] == nil ? value : resource[:value] )
         lines.find do |line|
-          if line =~ /^#{resource[:name]}/ && line !~ /^#{resource[:name]}\s?=\s?#{b}/
+          if line =~ /^\s*?#{resource[:name]}/ && line !~ /^\s*?#{resource[:name]}\s?=\s?#{b}/
             content = File.read(resource[:path])
             File.open(resource[:path],'w') do |fh|
               fh.write(content.gsub(/\n#{resource[:name]}\s?=\s?[\S+]/,"\n#{resource[:name]}\ =\ #{b}"))
@@ -62,7 +62,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     else
       local_lines = lines
       File.open(resource[:path],'w') do |fh|
-        fh.write(local_lines.reject{|l| l =~ /^#{resource[:name]}/ }.join(''))
+        fh.write(local_lines.reject{|l| l =~ /^\s*?#{resource[:name]}/ }.join(''))
       end
     end
     @lines = nil
@@ -73,7 +73,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     kernelvalue = thevalue.strip.gsub(/\s+/," ")
     confvalue = false
     lines.find do |line|
-      if line =~ /^#{resource[:name]}/
+      if line =~ /^\s*?#{resource[:name]}/
         thisparam=line.split('=')
         confvalue = thisparam[1].strip
       end
@@ -94,18 +94,16 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     sysctl('-w', "#{resource[:name]}=#{thesetting}")
     b = ( resource[:value] == nil ? value : resource[:value] )
     lines.find do |line|
-      if line =~ /^#{resource[:name]}/ && line !~ /^#{resource[:name]}\s?=\s?#{b}/
+      if line =~ /^\s*?#{resource[:name]}/ && line !~ /^\s*?#{resource[:name]}\s*?=\s*?#{b}/
         content = File.read(resource[:path])
         File.open(resource[:path],'w') do |fh|
           # this regex is not perfect yet
-          fh.write(content.gsub(/\n#{resource[:name]}\s?=.+\n/,"\n#{resource[:name]}\ =\ #{b}\n"))
+          fh.write(content.gsub(/\n#{resource[:name]}\s*?=.+\n/,"\n#{resource[:name]}\ =\ #{b}\n"))
         end
       end
     end
     # fiddyspence
-    # we reset @lines here because of caching issues with reading the file very quickly after having done it before
-    # otherwise you find yourself in the situation of reporting out of sync values when actually things have been changed
-    # which is very annoying
+    # we reset @lines here because of caching issues with the way we populate @lines if stuff changes
     @lines = nil
   end
 

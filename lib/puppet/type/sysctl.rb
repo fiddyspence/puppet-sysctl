@@ -9,14 +9,9 @@ Puppet::Type.newtype(:sysctl) do
   end
 
   newproperty(:permanent) do
-    desc "whether the value is in [/etc/sysctl.conf]"
+    desc "whether the value should be in [/etc/sysctl.conf]"
+    defaultto 'no'
     newvalues (/yes|no/)
-  end
-
-  newparam(:source) do
-    desc "whether to treat the running kernel or sysctl.conf as authoritative"
-    newvalues(/kernel|conf/)
-    defaultto "conf"
   end
 
   newparam(:path) do
