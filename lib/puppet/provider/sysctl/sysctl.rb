@@ -1,18 +1,10 @@
 Puppet::Type.type(:sysctl).provide(:sysctl) do
 
-  confine  :kernel => 'linux'
+  confine :kernel => 'linux'
   commands :sysctl => 'sysctl'
 
   def exists?
-    begin
-      sysctl('-n', '-e',resource[:name])
-    rescue
-#     puts "eek"
-    end
-  end
-
-  def create
-    return nil
+    sysctl('-n','-e', resource[:name])
   end
 
   def self.instances
@@ -23,7 +15,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     instances = []
     sysctloutput = sysctl('-a')
     sysctloutput.each do |line|
-    # what to do about the raft of e.g. dev.cdrom.info spam here....
+      next if line =~ /dev.cdrom.info/
       if line =~ /=/
         kernelsetting = line.split('=')
         instances << new(:name => kernelsetting[0].strip, :value => kernelsetting[1].strip)
@@ -35,28 +27,34 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
   def destroy
     local_lines = lines
     File.open(resource[:path],'w') do |fh|
-      fh.write(local_lines.reject{|l| l =~ /^#{resource[:name]}/ }.join(''))
+      fh.write(local_lines.reject{|l| l =~ /^#{resource[:name]}\s?\=\s?[\S+]/ }.join(''))
     end
   end
 
   def permanent
-    permanent=("no")
+    lines.find do |line|
+      if line =~ /^#{resource[:name]}/
+        return "yes"
+      end
+    end
+    "no"
   end
 
   def permanent=(ispermanent)
     if ispermanent == "yes"
-      currentstate = permanent
-      desiredvalue = ( resource[:value] == nil ? value : resource[:value] )
-      if currentstate == "no"
+      a = permanent
+      b = ( resource[:value] == nil ? value : resource[:value] )
+      if a == "no"
         File.open(resource[:path], 'a') do |fh|
-          fh.puts "#{resource[:name]} = #{desiredvalue}"
+          fh.puts "#{resource[:name]} = #{b}"
         end
       else
+        b = ( resource[:value] == nil ? value : resource[:value] )
         lines.find do |line|
-          if line =~ /^#{resource[:name]}/ && line !~ /^#{resource[:name]}\s?=\s?#{desiredvalue}/
+          if line =~ /^#{resource[:name]}/ && line !~ /^#{resource[:name]}\s?=\s?#{b}/
             content = File.read(resource[:path])
             File.open(resource[:path],'w') do |fh|
-              fh.write(content.gsub(/\n#{resource[:name]}\s?=\s?[\S+]/,"\n#{resource[:name]}\ =\ #{desiredvalue}"))
+              fh.write(content.gsub(/\n#{resource[:name]}\s?=\s?[\S+]/,"\n#{resource[:name]}\ =\ #{b}"))
             end
           end
         end
@@ -67,7 +65,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
         fh.write(local_lines.reject{|l| l =~ /^#{resource[:name]}/ }.join(''))
       end
     end
-    resetlines
+    @lines = nil
   end
 
   def value
@@ -94,29 +92,26 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
 
   def value=(thesetting)
     sysctl('-w', "#{resource[:name]}=#{thesetting}")
-    desiredvalue = ( resource[:value] == nil ? value : resource[:value] )
+    b = ( resource[:value] == nil ? value : resource[:value] )
     lines.find do |line|
-      if line =~ /^#{resource[:name]}/ && line !~ /^#{resource[:name]}\s?=\s?#{desiredvalue}/
+      if line =~ /^#{resource[:name]}/ && line !~ /^#{resource[:name]}\s?=\s?#{b}/
         content = File.read(resource[:path])
         File.open(resource[:path],'w') do |fh|
-          fh.write(content.gsub(/\n#{resource[:name]}\s?=.+\n/,"\n#{resource[:name]}\ =\ #{desiredvalue}\n"))
+          # this regex is not perfect yet
+          fh.write(content.gsub(/\n#{resource[:name]}\s?=.+\n/,"\n#{resource[:name]}\ =\ #{b}\n"))
         end
       end
     end
-    resetlines
+    # fiddyspence
+    # we reset @lines here because of caching issues with reading the file very quickly after having done it before
+    # otherwise you find yourself in the situation of reporting out of sync values when actually things have been changed
+    # which is very annoying
+    @lines = nil
   end
 
   private
   def lines
     @lines ||= File.readlines(resource[:path])
-  end
-
-  def resetlines
-    # fiddyspence
-    # we reset @lines here because of the way we create @lines - we don't want to read the file 100s of times
-    # so we only re-read it after we know it has changed, otherwise we assume it doesn't change while we are
-    # running
-    @lines = nil
   end
 
 end
