@@ -40,12 +40,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
   end
 
   def permanent
-    lines.find do |line|
-      if line =~ /^#{resource[:name]}/
-        return "yes"
-      end
-    end
-    "no"
+    permanent=("no")
   end
 
   def permanent=(ispermanent)
