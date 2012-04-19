@@ -58,18 +58,18 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
         File.open(resource[:path], 'a') do |fh|
           fh.puts "#{resource[:name]} = #{b}"
         end
-      end
-#      else
-#        b = ( resource[:value] == nil ? value : resource[:value] )
-#        lines.find do |line|
-#          if line =~ /^\s*?#{resource[:name]}/ && line !~ /^\s*?#{resource[:name]}\s?=\s?#{b}/
-#            content = File.read(resource[:path])
-#            File.open(resource[:path],'w') do |fh|
-#              fh.write(content.gsub(/\n#{resource[:name]}\s?=\s?[\S+]/,"\n#{resource[:name]}\ =\ #{b}"))
-#            end
-#          end
-#        end
 #      end
+      else
+        b = ( resource[:value] == nil ? value : resource[:value] )
+        lines.find do |line|
+          if line =~ /^\s*?#{resource[:name]}/ && line !~ /^\s*?#{resource[:name]}\s?=\s?#{b}/
+            content = File.read(resource[:path])
+            File.open(resource[:path],'w') do |fh|
+             fh.write(content.gsub(/\n#{resource[:name]}\s?=\s?[\S+]/,"\n#{resource[:name]}\ =\ #{b}"))
+            end
+          end
+        end
+      end
     else
       local_lines = lines
       File.open(resource[:path],'w') do |fh|
