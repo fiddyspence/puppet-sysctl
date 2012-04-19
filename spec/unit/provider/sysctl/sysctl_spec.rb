@@ -7,48 +7,66 @@ RSpec.configure do |config|
 end
 
 describe 'The sysctl provider for the sysctl type' do
+  let(:test_dir) { File.join('/tmp', Time.now.to_i.to_s) }
   let(:test_file) { File.join('/tmp', Time.now.to_i.to_s,'sysctl.conf') }
-  let(:resource) { Puppet::Type::Sysctl.new({:path => test_file}) }
+  let(:resource) { Puppet::Type::Sysctl.new({:name => 'vm.swappiness', :path => test_file}) }
   subject { Puppet::Type.type(:sysctl).provider(:sysctl).new(resource) }
+
+  before :each do
+    FileUtils.mkdir_p(test_dir)
+  end
+
   after :each do
     FileUtils.rm_rf(File.dirname(test_file)) if File.exists?(test_file)
+    FileUtils.rm_rf(File.dirname(test_dir)) if File.exists?(test_dir)
   end
 
-  it 'should ensure that the git directory does not exist initially' do
-    subject.exists?.should == false
-  end
-
-  it 'should ensure that a git directory does exist' do
-    FileUtils.mkdir_p(test_dir)
+  it 'should run sysctl to see if the key exists and return true if it does' do
+    subject.expects(:sysctl).with('-n','vm.swappiness').returns(0)
     subject.exists?.should == true
   end
 
-  it 'should clone the thing when run and the directory does not exist' do
-    resource[:source] = source
-    subject.expects(:git).with('clone', source, test_dir)
-    subject.create
+  it 'should run sysctl to see if the key exists' do
+    resource[:name] = 'vm.swappines'
+    subject.expects(:sysctl).with('-n','vm.swappines').returns('error: "vm.swappines" is an unknown key')
+    subject.exists?.should == false
   end
 
-  it 'should init thing when run and the directory does not exist' do
-    subject.expects(:git).with('init','-q',test_dir)
-    subject.create
+  it 'should return permanent=no if the key doesn\'t exist in the target path' do
+#   resource[:path] = test_file
+    subject.permanent.should == 'no'
   end
 
-  it 'should trash the thing when destroyed' do
-    FileUtils.expects(:rm_f).with(test_dir)
+  it 'should return permanent=yes if the key exists in the path' do
+    File.open(test_file,'w') do |fh|
+      fh.write("vm.swappiness = 0")
+    end
+    subject.permanent.should == 'yes'
+  end
+
+  it 'should get rid of an entry in the file if destroyed' do
+    FileUtils.mkdir_p(test_dir)
+    File.open(test_file,'w') do |fh|
+      fh.write("vm.swappiness = 0")
+    end
     subject.destroy
+    subject.permanent.should == 'no'
   end
 
-  it 'should return a revision correctly' do
-    resource[:revision] = '123123123'
-    subject.expects(:git).with('--git-dir',"#{test_dir}/.git",'rev-parse', 'HEAD').returns('123123123')
-    subject.revision.should == '123123123'
+  it 'should create a non-existent path target if it does not exist when called to make something permanent' do
+    resource[:value] = 0
+    subject.permanent=('yes')
+    subject.permanent.should == 'yes'
+    subject.expects(:sysctl).with('-n','vm.swappiness').returns("0")
+    subject.value.should == '0'
   end
 
-  it 'version' do
-    resource[:revision] = '123123123'
-    subject.expects(:git).with('--git-dir',"#{test_dir}/.git",'rev-parse', 'HEAD').returns('123123123')
-    subject.revision.should == '123123123'
-  end
+
+
+
+
+
+
+
 
 end

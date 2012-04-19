@@ -1,10 +1,15 @@
 Puppet::Type.type(:sysctl).provide(:sysctl) do
 
-  confine :kernel => 'linux'
+  confine  :kernel => 'linux'
   commands :sysctl => 'sysctl'
 
   def exists?
-    sysctl('-n','-e', resource[:name])
+    rvalue = sysctl('-n', resource[:name])
+    if rvalue =~ /error: "#{resource[:name]}" is an unknown key/
+      return false
+    else
+      return true
+    end
   end
 
   def self.instances
@@ -15,7 +20,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     instances = []
     sysctloutput = sysctl('-a')
     sysctloutput.each do |line|
-      next if line =~ /dev.cdrom.info/
+      #next if line =~ /dev.cdrom.info/
       if line =~ /=/
         kernelsetting = line.split('=')
         instances << new(:name => kernelsetting[0].strip, :value => kernelsetting[1].strip)
@@ -29,6 +34,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     File.open(resource[:path],'w') do |fh|
       fh.write(local_lines.reject{|l| l =~ /^#{resource[:name]}\s?\=\s?[\S+]/ }.join(''))
     end
+    @lines = nil 
   end
 
   def permanent
@@ -52,17 +58,17 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
         File.open(resource[:path], 'a') do |fh|
           fh.puts "#{resource[:name]} = #{b}"
         end
-      else
-        b = ( resource[:value] == nil ? value : resource[:value] )
-        lines.find do |line|
-          if line =~ /^\s*?#{resource[:name]}/ && line !~ /^\s*?#{resource[:name]}\s?=\s?#{b}/
-            content = File.read(resource[:path])
-            File.open(resource[:path],'w') do |fh|
-              fh.write(content.gsub(/\n#{resource[:name]}\s?=\s?[\S+]/,"\n#{resource[:name]}\ =\ #{b}"))
-            end
-          end
-        end
-      end
+#      else
+#        b = ( resource[:value] == nil ? value : resource[:value] )
+#        lines.find do |line|
+#          if line =~ /^\s*?#{resource[:name]}/ && line !~ /^\s*?#{resource[:name]}\s?=\s?#{b}/
+#            content = File.read(resource[:path])
+#            File.open(resource[:path],'w') do |fh|
+#              fh.write(content.gsub(/\n#{resource[:name]}\s?=\s?[\S+]/,"\n#{resource[:name]}\ =\ #{b}"))
+#            end
+#          end
+#        end
+#      end
     else
       local_lines = lines
       File.open(resource[:path],'w') do |fh|
@@ -73,7 +79,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
   end
 
   def value
-    thevalue = sysctl('-n','-e', resource[:name])
+    thevalue = sysctl('-n', resource[:name])
     kernelvalue = thevalue.strip.gsub(/\s+/," ")
     confvalue = false
     if lines != nil
