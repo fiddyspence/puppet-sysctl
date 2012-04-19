@@ -6,7 +6,7 @@ task :default do
   system("rake -T")
 end
 
-task :specs => [:spec] do
+task :specs => [:spec]
 
 desc "Run all rspec-puppet tests"
 RSpec::Core::RakeTask.new(:spec) do |t|
@@ -15,4 +15,3 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = 'spec/{classes,defines,unit}/**/*_spec.rb'
 end
 
-end
