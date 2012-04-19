@@ -32,12 +32,16 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
   end
 
   def permanent
-    lines.find do |line|
-      if line =~ /^\s*?#{resource[:name]}/
-        return "yes"
+    if lines != nil
+      lines.find do |line|
+        if line =~ /^\s*?#{resource[:name]}/
+          return "yes"
+        end
       end
     end
+
     "no"
+
   end
 
   def permanent=(ispermanent)
@@ -72,12 +76,15 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     thevalue = sysctl('-n','-e', resource[:name])
     kernelvalue = thevalue.strip.gsub(/\s+/," ")
     confvalue = false
-    lines.find do |line|
-      if line =~ /^\s*?#{resource[:name]}/
-        thisparam=line.split('=')
-        confvalue = thisparam[1].strip
+    if lines != nil
+      lines.find do |line|
+        if line =~ /^\s*?#{resource[:name]}/
+          thisparam=line.split('=')
+          confvalue = thisparam[1].strip
+        end
       end
     end
+
     if confvalue
       if confvalue == kernelvalue
         return kernelvalue
@@ -107,9 +114,11 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     @lines = nil
   end
 
-  private
   def lines
-    @lines ||= File.readlines(resource[:path])
+    begin
+      @lines ||= File.readlines(resource[:path])
+    rescue Errno::ENOENT
+      return nil
+    end
   end
-
 end
