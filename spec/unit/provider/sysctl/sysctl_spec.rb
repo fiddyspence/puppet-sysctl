@@ -61,6 +61,13 @@ describe 'The sysctl provider for the sysctl type' do
     subject.value.should == '0'
   end
 
+  it 'should get update an entry in the file if it changes' do
+    resource[:value] = 1
+    FileUtils.mkdir_p(test_dir)
+    File.open(test_file,'w') do |fh|
+      fh.write("vm.swappiness = 0")
+    end
+  end
 
 
 

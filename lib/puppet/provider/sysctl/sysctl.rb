@@ -34,11 +34,10 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
     File.open(resource[:path],'w') do |fh|
       fh.write(local_lines.reject{|l| l =~ /^#{resource[:name]}\s?\=\s?[\S+]/ }.join(''))
     end
-    @lines = nil 
+    @lines = nil
   end
 
   def permanent
-
     if lines != nil
       lines.find do |line|
         if line =~ /^#{resource[:name]}/
@@ -53,24 +52,10 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
 
   def permanent=(ispermanent)
     if ispermanent == "yes"
-      a = permanent
       b = ( resource[:value] == nil ? value : resource[:value] )
-      if a == "no"
-        File.open(resource[:path], 'a') do |fh|
-          fh.puts "#{resource[:name]} = #{b}"
-        end
+      File.open(resource[:path], 'a') do |fh|
+        fh.puts "#{resource[:name]} = #{b}"
       end
-#      else
-#        b = ( resource[:value] == nil ? value : resource[:value] )
-#        lines.find do |line|
-#          if line =~ /^#{resource[:name]}/ && line !~ /^#{resource[:name]}\s?=\s?#{b}$/
-#            content = File.read(resource[:path])
-#            File.open(resource[:path],'w') do |fh|
-#              fh.write(content.gsub(/#{line}/,"#{resource[:name]}\ =\ #{b}\n"))
-#            end
-#          end
-#        end
-#      end
     else
       local_lines = lines
       File.open(resource[:path],'w') do |fh|
@@ -117,8 +102,6 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
         end
       end
     end
-    # fiddyspence
-    # we reset @lines here because of caching issues with the way we populate @lines if stuff changes
     @lines = nil
   end
 
