@@ -58,6 +58,7 @@ Puppet::Type.type(:sysctl).provide(:sysctl) do
         File.open(resource[:path], 'a') do |fh|
           fh.puts "#{resource[:name]} = #{b}"
         end
+      end
 #      else
 #        b = ( resource[:value] == nil ? value : resource[:value] )
 #        lines.find do |line|
