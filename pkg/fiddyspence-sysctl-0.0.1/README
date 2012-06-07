@@ -14,11 +14,9 @@ There are some things to be aware of:
 
 First - by default the available params are available on your platform by running sysctl -a
 
-Running puppet resource will give you Puppetised available kernel tunables
+Running puppet resource will give you available kernel tunables in the Puppet DSL
 
-'ensure => present|absent' doesn't do a lot with this - by default only the stuff that the kernel supports will work.  If you use a key that the kernel doesn't support, it will barf.  So ner.  There might be something better that can be done with this.
-
-To put things into /etc/sysctl.conf (use path => '/etc/something to alter that target') use
+To put things into /etc/sysctl.conf (use path => '/etc/something' to alter the target file) use
 
   permanent => yes|no
 
