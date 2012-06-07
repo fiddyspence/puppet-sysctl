@@ -1,0 +1,61 @@
+{
+  "checksums": {
+    "lib/puppet/type/sysctl.rb": "ad52830353a70eec0616c15661e519ef",
+    "README": "e1f28d09ae129067575c1f743cf00c0e",
+    "Rakefile": "3a445a51ef5acbbd614e05ccf22ad14e",
+    "spec/unit/provider/sysctl/linux_spec.rb": "96f12d4be608090afdc8d075318ab598",
+    "spec/unit/type/sysctl_spec.rb": "b728ac54b00c24c45feb02ce142cd76a",
+    "spec/fixtures/manifests/site.pp": "d41d8cd98f00b204e9800998ecf8427e",
+    "LICENSE": "c7cfaeec9b53d710083f682d768bc981",
+    "lib/puppet/provider/sysctl/linux.rb": "496146b73e3b245e4207124d9ed703c9",
+    "Modulefile": "374054586d13243b501489510a72fc13",
+    "spec/spec_helper.rb": "f13c912ca3579d58dbaa59302d8a193c"
+  },
+  "summary": "Sysctl Module",
+  "version": "0.0.1",
+  "description": "This is a module to manage sysctl entries",
+  "author": "fiddyspence",
+  "types": [
+    {
+      "parameters": [
+        {
+          "doc": "the name of the kernel parameter to fiddle with",
+          "name": "name"
+        },
+        {
+          "doc": "which sysctl.conf we are dealing with",
+          "name": "path"
+        }
+      ],
+      "properties": [
+        {
+          "doc": "The basic property that the resource should be in.  Valid values are `present`, `absent`.",
+          "name": "ensure"
+        },
+        {
+          "doc": "the value that the running kernel should be set to",
+          "name": "value"
+        },
+        {
+          "doc": "whether the value should be in [/etc/sysctl.conf]  Values can match `/yes|no/`.",
+          "name": "permanent"
+        }
+      ],
+      "providers": [
+        {
+          "doc": "Required binaries: `sysctl`.",
+          "name": "linux"
+        }
+      ],
+      "doc": "    This type provides the capability to manage sysctl kernal parameters within\n    puppet.\n",
+      "name": "sysctl"
+    }
+  ],
+  "license": "ASL 2.0",
+  "source": "git://github.com/fiddyspence/puppet-sysctl.git",
+  "project_page": "http://github.com/fiddyspence/puppet-sysctl",
+  "name": "fiddyspence-sysctl",
+  "dependencies": [
+
+  ]
+}
