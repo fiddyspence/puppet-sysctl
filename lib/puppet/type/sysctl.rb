@@ -1,4 +1,10 @@
 Puppet::Type.newtype(:sysctl) do
+
+  @doc = <<-EOS
+    This type provides the capability to manage sysctl kernal parameters within
+    puppet.
+  EOS
+
   ensurable
   newparam(:name, :namevar => true) do
     desc "the name of the kernel parameter to fiddle with"
@@ -18,7 +24,9 @@ Puppet::Type.newtype(:sysctl) do
     desc "which sysctl.conf we are dealing with"
     defaultto '/etc/sysctl.conf'
     validate do |value|
-      raise ArgumentError, "Path is not a fully qualified path: #{value}" unless value =~ /^\/\S+\//
+      unless value =~ /^\/\S+/
+        raise ArgumentError, "Path is not a fully qualified path: #{value}" 
+      end
     end
   end
 
