@@ -1,7 +1,7 @@
 Puppet::Type.newtype(:sysctl) do
 
   @doc = <<-EOS
-    This type provides the capability to manage sysctl kernal parameters within
+    This type provides the capability to manage sysctl kernel parameters within
     puppet.
   EOS
 

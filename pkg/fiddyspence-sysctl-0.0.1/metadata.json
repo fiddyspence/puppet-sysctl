@@ -1,15 +1,15 @@
 {
   "checksums": {
+    "spec/unit/provider/sysctl/linux_spec.rb": "96f12d4be608090afdc8d075318ab598",
     "spec/fixtures/manifests/site.pp": "d41d8cd98f00b204e9800998ecf8427e",
-    "spec/unit/type/sysctl_spec.rb": "b728ac54b00c24c45feb02ce142cd76a",
-    "lib/puppet/type/sysctl.rb": "ad52830353a70eec0616c15661e519ef",
-    "README": "292994ae3e38f5fb3bc154d75b499d84",
     "spec/spec_helper.rb": "f13c912ca3579d58dbaa59302d8a193c",
-    "lib/puppet/provider/sysctl/linux.rb": "496146b73e3b245e4207124d9ed703c9",
-    "Modulefile": "374054586d13243b501489510a72fc13",
-    "LICENSE": "c7cfaeec9b53d710083f682d768bc981",
     "Rakefile": "3a445a51ef5acbbd614e05ccf22ad14e",
-    "spec/unit/provider/sysctl/linux_spec.rb": "96f12d4be608090afdc8d075318ab598"
+    "LICENSE": "c7cfaeec9b53d710083f682d768bc981",
+    "Modulefile": "374054586d13243b501489510a72fc13",
+    "lib/puppet/type/sysctl.rb": "0ba25754548630344738a7959fea2bb8",
+    "README": "292994ae3e38f5fb3bc154d75b499d84",
+    "lib/puppet/provider/sysctl/linux.rb": "496146b73e3b245e4207124d9ed703c9",
+    "spec/unit/type/sysctl_spec.rb": "b728ac54b00c24c45feb02ce142cd76a"
   },
   "summary": "Sysctl Module",
   "version": "0.0.1",
@@ -41,14 +41,14 @@
           "name": "permanent"
         }
       ],
-      "doc": "    This type provides the capability to manage sysctl kernal parameters within\n    puppet.\n",
-      "name": "sysctl",
       "providers": [
         {
           "doc": "Required binaries: `sysctl`.",
           "name": "linux"
         }
-      ]
+      ],
+      "doc": "    This type provides the capability to manage sysctl kernel parameters within\n    puppet.\n",
+      "name": "sysctl"
     }
   ],
   "license": "ASL 2.0",
