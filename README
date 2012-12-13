@@ -10,7 +10,7 @@ sysctl { 'net.ipv4.ip_local_port_range':
   value     => '32768 61000',
 }
 
-There are some things to be aware of:
+There are some things to be aware of - namely:
 
 First - by default the available params are available on your platform by running sysctl -a
 
