@@ -18,7 +18,7 @@ describe 'The sysctl provider for the sysctl type' do
 
   after :each do
     FileUtils.rm_rf(File.dirname(test_file)) if File.exists?(test_file)
-    FileUtils.rm_rf(File.dirname(test_dir)) if File.exists?(test_dir)
+    FileUtils.rm_rf(test_dir) if File.exists?(test_dir)
   end
 
   it 'should run sysctl to see if the key exists and return true if it does' do
