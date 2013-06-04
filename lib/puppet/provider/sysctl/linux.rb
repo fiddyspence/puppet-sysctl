@@ -18,7 +18,7 @@ Puppet::Type.type(:sysctl).provide(:linux) do
 
   def self.get_kernelparams
     instances = []
-    sysctloutput = sysctl('-a')
+    sysctloutput = sysctl('-a').split(/\n?\r/)
     sysctloutput.each do |line|
       #next if line =~ /dev.cdrom.info/
       if line =~ /=/
@@ -93,13 +93,20 @@ Puppet::Type.type(:sysctl).provide(:linux) do
   def value=(thesetting)
     sysctl('-w', "#{resource[:name]}=#{thesetting}")
     b = ( resource[:value] == nil ? value : resource[:value] )
-    lines.find do |line|
-      if line =~ /^#{resource[:name]}/ && line !~ /^#{resource[:name]}\s?=\s?#{b}$/
-        content = File.read(resource[:path])
-        File.open(resource[:path],'w') do |fh|
-          # this regex is not perfect yet
-          fh.write(content.gsub(/#{line}/,"#{resource[:name]}\ =\ #{b}\n"))
+    if lines
+      lines.find do |line|
+        if line =~ /^#{resource[:name]}/ && line !~ /^#{resource[:name]}\s?=\s?#{b}$/
+          content = File.read(resource[:path])
+          File.open(resource[:path],'w') do |fh|
+            # this regex is not perfect yet
+            fh.write(content.gsub(/#{line}/,"#{resource[:name]}\ =\ #{b}\n"))
+          end
         end
+      end
+    else
+      File.open(resource[:path],'w') do |fh|
+        # this regex is not perfect yet
+        fh.puts "#{resource[:name]} = #{b}"
       end
     end
     @lines = nil
