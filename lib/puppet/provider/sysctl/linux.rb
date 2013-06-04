@@ -18,7 +18,7 @@ Puppet::Type.type(:sysctl).provide(:linux) do
 
   def self.get_kernelparams
     instances = []
-    sysctloutput = sysctl('-a').split(/\n?\r/)
+    sysctloutput = sysctl('-a').split(/\r?\n/)
     sysctloutput.each do |line|
       #next if line =~ /dev.cdrom.info/
       if line =~ /=/
