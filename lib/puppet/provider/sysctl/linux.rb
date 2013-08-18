@@ -58,8 +58,11 @@ Puppet::Type.type(:sysctl).provide(:linux) do
   end
 
   def create
-    Puppet.debug 'wtf why are we here'
-    Puppet.debug "moooo #{@property_hash[:ensure]}"
+    sysctloutput = sysctl('-a').split(/\r?\n/)
+    Puppet.debug "#{sysctloutput.grep(/^#{@resource[:name]}\s?=/)}"
+    if sysctloutput.grep(/^#{@resource[:name]}\s?=/).empty?
+      self.fail "Invalid sysctl parameter"
+    end
   end
 
   def permanent=(ispermanent)
