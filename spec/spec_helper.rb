@@ -1,6 +1,4 @@
-require 'puppet'
-require 'rspec'
-require 'rspec-puppet'
+require 'puppetlabs_spec_helper/module_spec_helper'
 
 def param_value(subject, type, title, param)
   subject.resource(type, title).send(:parameters)[param.to_sym]
