@@ -4,9 +4,9 @@ Puppet::Type.type(:sysctl).provide(:linux) do
   commands :sysctl => 'sysctl'
 
   def exists?
-    Puppet.debug "hmmmm"
     @property_hash[:ensure] == :present
   end
+
   def self.prefetch(host)
     instances.each do |prov|
       if pkg = host[prov.name]
@@ -16,7 +16,7 @@ Puppet::Type.type(:sysctl).provide(:linux) do
   end
 
   def self.instances
-    sysctlconf=lines
+    sysctlconf=lines || []
     instances = []
     sysctloutput = sysctl('-a').split(/\r?\n/)
     sysctloutput.each do |line|
