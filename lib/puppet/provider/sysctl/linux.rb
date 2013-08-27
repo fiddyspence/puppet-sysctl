@@ -16,10 +16,6 @@ Puppet::Type.type(:sysctl).provide(:linux) do
   end
 
   def self.instances
-    self.get_kernelparams
-  end
-
-  def self.get_kernelparams
     sysctlconf=lines
     instances = []
     sysctloutput = sysctl('-a').split(/\r?\n/)
