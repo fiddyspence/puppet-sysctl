@@ -74,6 +74,7 @@ Puppet::Type.type(:sysctl).provide(:linux) do
       end
     end
     @lines = nil
+    @property_hash[:permanent] = ispermanent
   end
 
   def value
