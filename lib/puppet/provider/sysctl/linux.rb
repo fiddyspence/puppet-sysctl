@@ -101,6 +101,7 @@ Puppet::Type.type(:sysctl).provide(:linux) do
       end
     end
     @lines = nil
+    @property_hash[:value] = thesetting
   end
 
   def self.lines
