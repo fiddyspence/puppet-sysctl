@@ -18,9 +18,6 @@ describe Puppet::Type.type(:sysctl) do
     subject[:value].should == '0'
   end
 
-  it 'should have a default permanence' do
-    subject[:permanent].should == 'no'
-  end
   it 'should accept yes as a value for permanent' do
     subject[:permanent] = 'yes'
     subject[:permanent].should == 'yes'
