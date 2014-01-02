@@ -2,7 +2,7 @@ This is a puppet module to edit Linux kernel params using sysctl under the runni
 
 EXAMPLE USAGE:
 
-    # puppet resource sysctl net.ipv4.ip_local_port_range permanent=yes value='32768 61000'
+    # puppet resource sysctl net.ipv4.ip_local_port_range permanent=no value="32768"$'\t'"61000"
     notice: /Sysctl[net.ipv4.ip_local_port_range]/value: value changed '32768 61001' to '32768 61000'
     sysctl { 'net.ipv4.ip_local_port_range':
       ensure    => 'present',
