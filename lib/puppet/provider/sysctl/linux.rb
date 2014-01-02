@@ -7,15 +7,12 @@ Puppet::Type.type(:sysctl).provide(:linux) do
     @property_hash[:ensure] == :present
   end
 
-  def self.prefetch(param)
+  def self.prefetch(host)
     instances.each do |prov|
-      if pkg = param[prov.name]
+      if pkg = host[prov.name]
         pkg.provider = prov
       end
     end
-  end
-  def properties
-    @property_hash.dup
   end
 
   def self.instances
@@ -27,7 +24,6 @@ Puppet::Type.type(:sysctl).provide(:linux) do
       if line =~ /=/
         kernelsetting = line.split('=')
         confval = sysctlconf.grep(/^#{kernelsetting[0].strip}\s?=/)
-        puts confval
         if confval.empty?
           value = kernelsetting[1].strip
           permanent = 'no'
@@ -110,18 +106,16 @@ Puppet::Type.type(:sysctl).provide(:linux) do
 
   def self.lines
     begin
-      if @resource[:path]
-        @lines ||= File.readlines(@resource[:path])
-      else 
-        @lines ||= File.readlines('/etc/sysctl.conf')
-      end
+      @lines ||= File.readlines('/etc/sysctl.conf')
     rescue Errno::ENOENT
       return nil
     end
-    return  'tard'
   end
-
   def lines
-    self.class.lines
+    begin
+      @lines ||= File.readlines(@resource[:path])
+    rescue Errno::ENOENT
+      return nil
+    end
   end
 end
