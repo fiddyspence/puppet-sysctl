@@ -25,14 +25,14 @@ Puppet::Type.type(:sysctl).provide(:linux) do
         kernelsetting = line.split('=')
         confval = sysctlconf.grep(/^#{kernelsetting[0].strip}\s?=/)
         if confval.empty?
-          value = kernelsetting[1].strip
+          value = kernelsetting[1].strip.gsub(/\t+/," ")
           permanent = 'no'
         else
           permanent = 'yes'
-          unless confval[0].split(/=/)[1].strip == kernelsetting[1].strip
-            value = "outofsync(sysctl:#{kernelsetting[1].strip},config:#{confval[0].split(/=/)[1].strip})"
+          unless confval[0].split(/=/)[1].strip == kernelsetting[1].strip.gsub(/\t+/," ")
+            value = "outofsync(sysctl:#{kernelsetting[1].strip.gsub(/\t+/," ")},config:#{confval[0].split(/=/)[1].strip})"
           else
-            value = kernelsetting[1].strip
+            value = kernelsetting[1].strip.gsub(/\t+/," ")
           end
         end
         instances << new(:ensure => :present, :name => kernelsetting[0].strip, :value => value, :permanent => permanent)
