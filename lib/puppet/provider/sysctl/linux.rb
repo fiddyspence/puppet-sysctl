@@ -23,19 +23,21 @@ Puppet::Type.type(:sysctl).provide(:linux) do
       #next if line =~ /dev.cdrom.info/
       if line =~ /=/
         kernelsetting = line.split('=')
-        confval = sysctlconf.grep(/^#{kernelsetting[0].strip}\s?=/)
+        setting_name = kernelsetting[0].strip
+        setting_value = kernelsetting[1].gsub(/\s+/,' ').strip
+        confval = sysctlconf.grep(/^#{setting_name}\s?=/)
         if confval.empty?
-          value = kernelsetting[1].strip
+          value = setting_value
           permanent = 'no'
         else
           permanent = 'yes'
-          unless confval[0].split(/=/)[1].strip == kernelsetting[1].strip
-            value = "outofsync(sysctl:#{kernelsetting[1].strip},config:#{confval[0].split(/=/)[1].strip})"
+          unless confval[0].split(/=/)[1].gsub(/\s+/,' ').strip == setting_value
+            value = "outofsync(sysctl:#{setting_value},config:#{confval[0].split(/=/)[1].strip})"
           else
-            value = kernelsetting[1].strip
+            value = setting_value
           end
         end
-        instances << new(:ensure => :present, :name => kernelsetting[0].strip, :value => value, :permanent => permanent)
+        instances << new(:ensure => :present, :name => setting_name, :value => value, :permanent => permanent)
       end
     end
     instances
