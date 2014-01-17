@@ -12,6 +12,10 @@ Puppet::Type.newtype(:sysctl) do
 
   newproperty(:value) do
     desc "the value that the running kernel should be set to"
+
+    munge do |value|
+      value.gsub('/s+/',' ')
+    end
   end
 
   newproperty(:permanent) do
