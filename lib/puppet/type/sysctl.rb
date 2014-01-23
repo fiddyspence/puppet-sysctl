@@ -14,7 +14,7 @@ Puppet::Type.newtype(:sysctl) do
     desc "the value that the running kernel should be set to"
 
     munge do |value|
-      value.gsub('/s+/',' ')
+      value.to_s.gsub('/s+/',' ')
     end
   end
 
