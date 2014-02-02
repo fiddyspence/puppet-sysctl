@@ -20,7 +20,9 @@ Puppet::Type.newtype(:sysctl) do
 
   newproperty(:permanent) do
     desc "whether the value should be in [/etc/sysctl.conf]"
-    newvalues (/yes|no/)
+    newvalues(:true, :false)
+    aliasvalue('yes', :true)
+    aliasvalue('no', :false)
   end
 
   newparam(:path) do

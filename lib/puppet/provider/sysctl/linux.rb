@@ -28,9 +28,9 @@ Puppet::Type.type(:sysctl).provide(:linux) do
         confval = sysctlconf.grep(/^#{setting_name}\s?=/)
         if confval.empty?
           value = setting_value
-          permanent = 'no'
+          permanent = :false
         else
-          permanent = 'yes'
+          permanent = :true
           unless confval[0].split(/=/)[1].gsub(/\s+/,' ').strip == setting_value
             value = "outofsync(sysctl:#{setting_value},config:#{confval[0].split(/=/)[1].strip})"
           else
@@ -64,7 +64,7 @@ Puppet::Type.type(:sysctl).provide(:linux) do
   end
 
   def permanent=(ispermanent)
-    if ispermanent == "yes"
+    if ispermanent == :true
       b = ( @resource[:value] == nil ? value : @resource[:value] )
       File.open(@resource[:path], 'a') do |fh|
         fh.puts "#{@resource[:name]} = #{b}"
