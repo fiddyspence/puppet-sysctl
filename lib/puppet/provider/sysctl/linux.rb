@@ -37,7 +37,7 @@ Puppet::Type.type(:sysctl).provide(:linux) do
             value = setting_value
           end
         end
-        instances << new(:ensure => :present, :name => setting_name, :value => value, :permanent => permanent)
+        instances << new(:ensure => :present, :name => setting_name, :value => value.to_s, :permanent => permanent)
       end
     end
     instances
@@ -85,21 +85,19 @@ Puppet::Type.type(:sysctl).provide(:linux) do
 
   def value=(thesetting)
     sysctl('-w', "#{@resource[:name]}=#{thesetting}")
-    b = ( @resource[:value] == nil ? value : @resource[:value] )
-    if lines
-      lines.find do |line|
-        if line =~ /^#{@resource[:name]}/ && line !~ /^#{@resource[:name]}\s?=\s?#{b}$/
-          content = File.read(@resource[:path])
-          File.open(@resource[:path],'w') do |fh|
-            # this regex is not perfect yet
-            fh.write(content.gsub(/#{line}/,"#{@resource[:name]}\ =\ #{b}\n"))
-          end
+    b = thesetting #( @resource[:value] == nil ? value : @resource[:value] ) # Why like this?
+    if not (lines.nil? or lines.empty?)
+      changed = false
+      lines.each_index { |idx|
+        if lines[idx] =~ /^#{@resource[:name]}/ and lines[idx] !~ /^#{@resource[:name]}\s?=\s?#{b}$/
+          lines[idx] = "#{@resource[:name]}\ =\ #{b}\n"
+          changed = true
         end
-      end
-    else
-      File.open(@resource[:path],'w') do |fh|
-        # this regex is not perfect yet
-        fh.puts "#{@resource[:name]} = #{b}"
+      }
+      if changed
+        File.open(@resource[:path],'w') do |fh|
+          fh.write(lines)
+        end
       end
     end
     @lines = nil
