@@ -1,5 +1,5 @@
 name 'fiddyspence-sysctl'
-version '0.3.1'
+version '0.3.4'
 source 'git://github.com/fiddyspence/puppet-sysctl.git'
 description 'This is a module to manage sysctl entries'
 author 'fiddyspence'
