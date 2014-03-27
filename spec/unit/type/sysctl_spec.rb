@@ -20,11 +20,19 @@ describe Puppet::Type.type(:sysctl) do
 
   it 'should accept yes as a value for permanent' do
     subject[:permanent] = 'yes'
-    subject[:permanent].should == 'yes'
+    subject[:permanent].should == :true
+  end
+  it 'should accept true as a value for permanent' do
+    subject[:permanent] = :true
+    subject[:permanent].should == :true
   end
   it 'should accept no as a value for permanent' do
     subject[:permanent] = 'no'
-    subject[:permanent].should == 'no'
+    subject[:permanent].should == :false
+  end
+  it 'should accept false as a value for permanent' do
+    subject[:permanent] = :false
+    subject[:permanent].should == :false
   end
   it 'should not accept a non yes/no answer as a value for permanent' do
     expect { subject[:permanent] = 'moo'}.to raise_error(Puppet::Error, /Invalid value/)
