@@ -18,26 +18,29 @@ Puppet::Type.type(:sysctl).provide(:linux) do
   def self.instances
     sysctlconf=lines || []
     instances = []
-    sysctloutput = sysctl('-a').split(/\r?\n/)
+    sysctloutput = sysctl('-a').split(/\n/)
     sysctloutput.each do |line|
+      Puppet.debug("Line: " + line.to_s)
+      line.strip!
       #next if line =~ /dev.cdrom.info/
       if line =~ /=/
-        kernelsetting = line.split('=')
-        setting_name = kernelsetting[0].strip
-        setting_value = kernelsetting[1].gsub(/\s+/,' ').strip
+        permanent = :false
+        kernelsetting = line.split(/\s?=\s?/)
+        setting_name = kernelsetting[0]
+        setting_value = kernelsetting[1]
         confval = sysctlconf.grep(/^#{setting_name}\s?=/)
         if confval.empty?
           value = setting_value
           permanent = :false
         else
           permanent = :true
-          unless confval[0].split(/=/)[1].gsub(/\s+/,' ').strip == setting_value
-            value = "outofsync(sysctl:#{setting_value},config:#{confval[0].split(/=/)[1].strip})"
+          unless confval[0].split('=')[1].strip == setting_value
+            value = "outofsync(sysctl:#{setting_value},config:#{confval[0].split('=')[1].strip})"
           else
             value = setting_value
           end
         end
-        instances << new(:ensure => :present, :name => setting_name, :value => value.to_s, :permanent => permanent)
+        instances << new(:ensure => :present, :name => setting_name, :value => value, :permanent => permanent)
       end
     end
     instances
@@ -52,6 +55,7 @@ Puppet::Type.type(:sysctl).provide(:linux) do
   end
 
   def permanent
+    Puppet.debug("Permanent? " + @property_hash[:permanent].to_s)
     @property_hash[:permanent]
   end
 
@@ -85,12 +89,11 @@ Puppet::Type.type(:sysctl).provide(:linux) do
 
   def value=(thesetting)
     sysctl('-w', "#{@resource[:name]}=#{thesetting}")
-    b = thesetting #( @resource[:value] == nil ? value : @resource[:value] ) # Why like this?
     if not (lines.nil? or lines.empty?)
       changed = false
       lines.each_index { |idx|
-        if lines[idx] =~ /^#{@resource[:name]}/ and lines[idx] !~ /^#{@resource[:name]}\s?=\s?#{b}$/
-          lines[idx] = "#{@resource[:name]}\ =\ #{b}\n"
+        if lines[idx] =~ /^#{@resource[:name]}/ and lines[idx] !~ /^#{@resource[:name]}\s?=\s?#{thesetting}$/
+          lines[idx] = "#{@resource[:name]}\ =\ #{thesetting}\n"
           changed = true
         end
       }
