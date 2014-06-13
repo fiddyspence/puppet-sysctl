@@ -1,8 +1,28 @@
-Puppet::Type.type(:sysctl).provide(:linux) do
+Puppet::Type.type(:sysctl).provide(:linux3) do
 
   confine  :kernel => 'linux'
-  confine  :true   => Puppet.version =~ /^2/
-  commands :sysctl => 'sysctl'
+
+
+  class CommandDefinerNoMerge < Puppet::Provider::CommandDefiner
+    def command
+      @confiner.confine :exists => @path, :for_binary => true
+      Puppet::Provider::Command.new(@name, @path, Puppet::Util, Puppet::Util::Execution, { :failonfail => true, :combine => false, :custom_environment => @custom_environment })
+    end
+  end
+ 
+  def self.has_nomerge_command(name, path, &block)
+    name = name.intern
+    command = CommandDefinerNoMerge.define(name, path, self, &block)
+
+    @commands[name] = command.executable
+
+    create_class_and_instance_method(name) do |*args|
+      return command.execute(*args)
+    end
+  end
+
+  has_nomerge_command(:sysctl, 'sysctl') do
+  end
 
   def exists?
     @property_hash[:ensure] == :present
