@@ -16,7 +16,7 @@ vm.swappiness = 0
       :name     => 'vm.swappiness',
       :ensure   => :present,
       :value    => 0,
-      :path     => '/etc/sysctl.conf',
+      :path     => '/etc/sysctl.conf'
     )
   end
   let(:provider) do
