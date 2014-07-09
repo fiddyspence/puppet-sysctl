@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/fiddyspence/puppet-sysctl.png?branch=master)](https://travis-ci.org/fiddyspence/puppet-sysctl)
+
 This is a puppet module to edit Linux kernel params using sysctl under the running kernel using a native type/provider.  It modifies both the running kernel, and optionally will persist settings in /etc/sysctl.conf
 
 EXAMPLE USAGE:
@@ -28,3 +30,7 @@ You can stick pretty much any string in value, note for multiwords use a single 
 License:
 
 See LICENSE file
+
+Changelog:
+
+ - 9th July 2014 - adding Travis CI
