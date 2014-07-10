@@ -2,6 +2,9 @@ Puppet::Type.type(:sysctl).provide(:linux3) do
 
   confine  :kernel => 'linux'
 
+# This code contributed by Tom Doran to fix the stdout/err stream merging
+# problem where Puppet doesn't allow the command helper to specify 
+# or allow handling of stderr from commands with biggish output
 
   class CommandDefinerNoMerge < Puppet::Provider::CommandDefiner
     def command
