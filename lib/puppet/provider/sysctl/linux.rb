@@ -95,8 +95,10 @@ Puppet::Type.type(:sysctl).provide(:linux) do
   def permanent=(ispermanent)
     if ispermanent == :true
       b = ( @resource[:value] == nil ? value : @resource[:value] )
+      currentcontents=File.read(@resource[:path])
+      cr = currentcontents =~ /\n\Z/ ? '' : "\n"
       File.open(@resource[:path], 'a') do |fh|
-        fh.puts "#{@resource[:name]} = #{b}"
+        fh.puts "#{cr}#{@resource[:name]} = #{b}"
       end
     else
       local_lines = lines
