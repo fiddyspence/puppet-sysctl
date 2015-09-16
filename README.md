@@ -34,3 +34,4 @@ See LICENSE file
 Changelog:
 
  - 9th July 2014 - adding Travis CI
+ - 16th Sept 2015 - update README
