@@ -12,6 +12,10 @@ EXAMPLE USAGE:
       value     => '32768 61000',
     }
 
+    class { 'sysctl':
+      set = {'net.ipv4.ip_local_port_range' => { value => '32768 61000', permanent => 'yes', ensure => 'present',
+    }
+
 There are some things to be aware of - namely:
 
 First - by default the available params are available on your platform by running sysctl -a
