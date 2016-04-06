@@ -23,6 +23,7 @@ Puppet::Type.newtype(:sysctl) do
     newvalues(:true, :false)
     aliasvalue('yes', :true)
     aliasvalue('no', :false)
+    defaultto :true
   end
 
   newparam(:path) do
