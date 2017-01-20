@@ -86,8 +86,8 @@ Puppet::Type.type(:sysctl).provide(:linux) do
 
   def create
     sysctloutput = sysctl('-a').split(/\r?\n/)
-    Puppet.debug "#{sysctloutput.grep(/^#{@resource[:name]}\s?=/)}"
-    if sysctloutput.grep(/^#{@resource[:name]}\s?=/).empty?
+    Puppet.debug "#{sysctloutput.grep(/^#{@resource[:name]}\s*=/)}"
+    if sysctloutput.grep(/^#{@resource[:name]}\s*=/).empty?
       self.fail "Invalid sysctl parameter"
     end
   end
